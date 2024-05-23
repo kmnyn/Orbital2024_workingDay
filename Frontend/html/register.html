@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>MonoJar Register Form</title>
+        <title>MonoJar Register Page</title>
         <!--link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"-->
     </head>
 
     <body>
-        <form>
+        <form id="registerForm">
             <div class="form-group">
-              <label for="exampleInputEmail1">Email address</label>
-              <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+                <label for="registerUsername">Username</label>
+                <input type="text" class="form-control" id="registerUsername" placeholder="Username">
+              </div>
+            <div class="form-group">
+              <label for="registerEmail">Email address</label>
+              <input type="email" class="form-control" id="registerEmail" placeholder="Email address">
             </div>
             <div class="form-group">
-              <label for="exampleInputPassword1">Password</label>
-              <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+              <label for="registerPassword">Password</label>
+              <input type="password" class="form-control" id="registerPassword" placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-default">Submit</button>
+            <button type="submit" class="btn btn-default">Register</button>
           </form>
+
+         <p>Already have an account? Sign in <a href="./login.html">here!</a></p>
+
+        <script src="../js/registerScript.js"></script>
     </body>
 </html>
