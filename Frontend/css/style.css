@@ -22,6 +22,7 @@ body, html {
     background: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    text-align: center;
 }
 
 h2 {
@@ -109,4 +110,14 @@ a {
 
 a:hover {
     color: #0056b3;
+}
+
+.container div {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.container p {
+    margin: 0;
 }
