@@ -45,11 +45,11 @@ def register_page():
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.form
+    data = request.json
     username = data['username']
     email = data['email']
     password = data['password']
-    hashed_password = generate_password_hash(password, method='sha256')
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     try:
         conn = sqlite3.connect('monojar.db')
@@ -65,7 +65,7 @@ def register():
 # Login route Endpoint
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.form
+    data = request.json
     username = data['username']
     password = data['password']
 
@@ -77,7 +77,7 @@ def login():
 
     if user and check_password_hash(user[3], password):
         session['user_id'] = user[0]
-        return jsonify({'message': 'Login successful!'})
+        return jsonify({'message': 'Login successfully!'})
     else:
         return jsonify({'message': 'Invalid credentials!'}), 400
 
@@ -92,5 +92,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
