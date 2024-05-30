@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, g
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 # Create Flask application instance
 
@@ -10,11 +11,11 @@ app.secret_key = 'mojodojocasahouse'
 DATABASE = 'monojar.db'
 
 # Determine base URL based on environment
-IS_DEPLOY = os.getenv('IS_DEPLOY') == 'True'
+IS_DEPLOY = os.getenv('IS_DEPLOY') == 'False'
 if IS_DEPLOY:
     BASE_URL = "https://monojar-test.onrender.com"
 else:
-    BASE_URL = "http://localhost:5000"
+    BASE_URL = "http://127.0.0.1:5000"
 
 
 # Initialise database connection (Singleton pattern)
@@ -45,17 +46,17 @@ def close_db(exception):
 # Home route
 @app.route('/')
 def home():
-    return render_template('landing.html', BASE_URL=BASE_URL)
+    return render_template('landing.html')
 
 # Login page route
 @app.route('/login')
 def login_page():
-    return render_template('login.html', BASE_URL=BASE_URL)
+    return render_template('login.html')
 
 # Register page route
 @app.route('/register')
 def register_page():
-    return render_template('register.html', BASE_URL=BASE_URL)
+    return render_template('register.html')
 
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
