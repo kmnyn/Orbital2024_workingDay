@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, g
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 # Create Flask application instance
 
@@ -8,6 +9,14 @@ app = Flask(__name__, template_folder='../Frontend/templates', static_folder='..
 app.secret_key = 'mojodojocasahouse'
 
 DATABASE = 'monojar.db'
+
+# Determine base URL based on environment
+IS_DEPLOY = os.getenv('IS_DEPLOY') == 'False'
+if IS_DEPLOY:
+    BASE_URL = "https://monojar-test.onrender.com"
+else:
+    BASE_URL = "http://127.0.0.1:5000"
+
 
 # Initialise database connection (Singleton pattern)
 def get_db():
