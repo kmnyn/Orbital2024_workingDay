@@ -4,7 +4,11 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        fetch('http://127.0.0.1:5000/register', {
+
+        // Dynamically construct the login URL based on BASE_URL
+        const RegisterUrl = BASE_URL + "/register";
+
+        fetch(RegisterUrl, {  // Use the dynamically constructed RegisterUrl
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

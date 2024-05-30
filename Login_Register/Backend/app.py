@@ -9,6 +9,14 @@ app.secret_key = 'mojodojocasahouse'
 
 DATABASE = 'monojar.db'
 
+# Determine base URL based on environment
+IS_DEPLOY = os.getenv('IS_DEPLOY') == 'True'
+if IS_DEPLOY:
+    BASE_URL = "https://monojar-test.onrender.com"
+else:
+    BASE_URL = "http://localhost:5000"
+
+
 # Initialise database connection (Singleton pattern)
 def get_db():
     if 'db' not in g:
@@ -37,17 +45,17 @@ def close_db(exception):
 # Home route
 @app.route('/')
 def home():
-    return render_template('landing.html')
+    return render_template('landing.html', BASE_URL=BASE_URL)
 
 # Login page route
 @app.route('/login')
 def login_page():
-    return render_template('login.html')
+    return render_template('login.html', BASE_URL=BASE_URL)
 
 # Register page route
 @app.route('/register')
 def register_page():
-    return render_template('register.html')
+    return render_template('register.html', BASE_URL=BASE_URL)
 
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
