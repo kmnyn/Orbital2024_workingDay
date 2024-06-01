@@ -3,7 +3,6 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Create Flask application instance
-
 app = Flask(__name__, template_folder='../Frontend/templates', static_folder='../Frontend/static')
 app.secret_key = 'mojodojocasahouse'
 
