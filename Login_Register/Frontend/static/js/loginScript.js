@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Success:', data);
             alert(data.message);
             if (data.message === 'Login successfully!') {
-                window.location.href = '/';
+                window.location.href = '/dashboard';
             }
         })
         .catch((error) => {
