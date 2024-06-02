@@ -48,6 +48,14 @@ def login_page():
 def register_page():
     return render_template('register.html')
 
+# Dashboard page route
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    return render_template('dashboard.html')
+
+
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
 def register():
@@ -86,6 +94,7 @@ def login():
         return jsonify({'message': 'Login successfully!'})
     else:
         return jsonify({'message': 'Invalid credentials!'}), 400
+
 
 # Logout route git
 
