@@ -1,0 +1,125 @@
+.content {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 50px; /* Adds space between cards */
+    justify-content: center; /* Centers the cards horizontally */
+    align-items: center; /* Centers the cards vertically */
+    width: 100%;
+    height: 100%;
+}
+
+.card {
+    background-color: #FFFFE0;
+    /* border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    padding: 20px;
+    width: 400px; 
+    height: 450px; 
+    box-sizing: border-box;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card h2, .card p {
+    margin: 0;
+    align-items: center;
+    color: #000;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+.card p {
+    font-size: 16px;
+}
+
+.card img {
+    width: 300px; /* Fixed width for the image */
+    height: 450px; /* Fixed height for the image */
+    object-fit: contain; /* Ensure the image fits within the bounds */
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
+textarea {
+    width: 600px;
+    height: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+button.create-button {
+    font-family: 'Georgia', serif;
+    width: 620px;
+    padding: 10px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #d68043;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button.create-button:hover {
+    background-color: #d26516; 
+}
+
+.back-button {
+    font-family: 'Georgia', serif;
+    position: absolute;
+    top: 90px;
+    left: 270px;
+    padding: 10px 20px;
+    background-color: #d68043; /* Button color */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #d26516; /* Lighter warm color on hover */
+}
+
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 80%; 
+        height: auto; 
+    }
+
+    .box {
+        width: 80%; /* Adjust the width for smaller screens */
+    }
+
+    textarea {
+        height: 150px; /* Adjust the height for smaller screens */
+    }
+
+    button.create-button {
+        width: 100%;
+    }
+}

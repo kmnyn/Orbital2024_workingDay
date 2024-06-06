@@ -1,4 +1,4 @@
-/* Basic reset to ensure consistency across browsers */
+/* Basic styles */
 * {
     margin: 0;
     padding: 0;
@@ -72,7 +72,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Utility classes */
+/* Utility class */
 .text-center {
     text-align: center;
 }

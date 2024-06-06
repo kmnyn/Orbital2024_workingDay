@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>MonoJar Create Happiness Jar</title>
+        <link rel="stylesheet" href="/static/css/dashboardStyle.css">
+        <link rel="stylesheet" href="/static/css/createJarStyle.css">
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="sidebar">
+                <div class="logo">MonoJar</div>
+
+                <a href="#" class="main-tab special-tab" data-target="createjar-submenu">Create Jar</a>
+                <div id="createjar-submenu" class="submenu">
+                    <a href="/sadnessJar">Sadness</a>
+                    <a href="#">Happiness</a>
+                </div>
+
+                <a href="#" class="main-tab" data-target="library-submenu">Jar Library</a>
+                <div id="library-submenu" class="submenu">
+                    <a href="#">Sadness</a>
+                    <a href="#">Happiness</a>
+                </div>
+
+                <a href="#" class="main-tab">Time Capsule</a>
+
+                <a href="#" class="main-tab" data-target="settings-submenu">Settings</a>
+                <div id="settings-submenu" class="submenu">
+                    <a href="#">Edit Nickname</a>
+                    <a href="#">Notifications</a>
+                    <a href="#">About App</a>
+                    <a href="#">Log Out</a>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="header">
+                    <div class="title">Create Hapiness Jar</div>
+                </div>
+
+                <div class="content">
+                    <a href="/createJar">
+                        <button class="back-button">Back</button>
+                    </a>
+                    <form class="box" id="jarForm">
+                        <textarea name="happiness_input" placeholder="(I am happy today!!)" required></textarea>
+                        <button type="submit" class="create-button">Create</button>
+                    </form>
+                </div>
+            </div>
+
+            <script src="/static/js/config.js"></script>
+            <script src="/static/js/dashboardScript.js"></script>
+            <script src="/static/js/happinessJarScript.js"></script>
+        </div>
+    </body>
+</html>

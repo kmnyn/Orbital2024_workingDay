@@ -49,12 +49,19 @@ def register_page():
     return render_template('register.html')
 
 # Dashboard page route
-@app.route('/dashboard')
-def dashboard():
+@app.route('/createJar')
+def create_jar():
     if 'user_id' not in session:
         return redirect(url_for('login_page'))
-    return render_template('dashboard.html')
+    return render_template('createJar.html')
 
+@app.route('/sadnessJar')
+def sadness_jar():
+    return render_template('sadnessJar.html')
+
+@app.route('/happinessJar')
+def happiness_jar():
+    return render_template('happinessJar.html')
 
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])

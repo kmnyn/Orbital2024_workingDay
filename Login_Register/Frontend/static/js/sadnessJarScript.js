@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("loginForm");
+    const form = document.getElementById("jarForm");
     form.addEventListener("submit", function(event) {
         event.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
         // Dynamically construct the login URL based on BASE_URL
-        const loginUrl = BASE_URL + "/login";
+        const sadnessJarUrl = BASE_URL + "/sadnessJar";
 
-        fetch(loginUrl, {  // Use the dynamically constructed loginUrl
+        fetch(sadnessJarUrl, {  // Use the dynamically constructed loginUrl
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -18,14 +18,11 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            alert(data.message);
-            if (data.message === 'Login successfully!') {
-                window.location.href = '/createJar';
-            }
+            alert(data.message); // alert "Create successfully! You can check your jar in Jar Library!"
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('Login failed.');
+            alert('Failed to create. Please try again.');
         });
     });
 });
