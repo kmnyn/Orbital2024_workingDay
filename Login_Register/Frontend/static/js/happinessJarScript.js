@@ -5,9 +5,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-
-        // Dynamically construct the login URL based on BASE_URL
-        const happinessJarUrl = BASE_URL + "/happinessJar";
+        // Dynamically construct the login URL based on BASE_URL and username
+        const happinessJarUrl = BASE_URL + "/happinessJar/" + username;
 
         fetch(happinessJarUrl, {  // Use the dynamically constructed loginUrl
             method: 'POST',

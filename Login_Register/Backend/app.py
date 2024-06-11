@@ -101,25 +101,25 @@ def register_page():
 
 # Verification page route
 @app.route('/verification')
-def verify_page():
+def verification_page():
     return render_template('verification.html')
 
 # Create Jar route
-@app.route('/createJar')
-def create_jar():
-    if 'username' not in session:
+@app.route('/createJar/<username>')
+def create_jar(username):
+    if 'username' not in session or session['username'] != username:
         return redirect(url_for('login_page'))
-    return render_template('createJar.html')
+    return render_template('createJar.html', username=username)
 
 # Sadness Jar route
-@app.route('/sadnessJar')
-def sadness_jar():
-    return render_template('sadnessJar.html')
+@app.route('/sadnessJar/<username>')
+def sadness_jar(username):
+    return render_template('sadnessJar.html', username=username)
 
 # Happiness Jar route
-@app.route('/happinessJar')
-def happiness_jar():
-    return render_template('happinessJar.html')
+@app.route('/happinessJar/<username>')
+def happiness_jar(username):
+    return render_template('happinessJar.html', username=username)
 
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
@@ -152,7 +152,7 @@ def register():
 
 # Verification route Endpoint
 @app.route('/verification', methods=['POST'])
-def verify_otp():
+def verification():
     data = request.json
     entered_otp = data['otp']
     expected_otp = session.get('otp')
@@ -205,7 +205,7 @@ def login():
     if user and check_password_hash(user[2], password):
         if user[3] == 1:
             session['username'] = user[0]
-            return jsonify({'message': 'Login successfully!'})
+            return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
         else:
             return jsonify({'message': 'User not verified!'}), 403
     else:
@@ -220,9 +220,9 @@ def logout():
     return redirect(url_for('home'))
 
 # Happiness Jar route Endpoint
-@app.route('/happinessJar', methods=['POST'])
-def create_happiness_jar():
-    if 'username' not in session:
+@app.route('/happinessJar/<username>', methods=['POST'])
+def create_happiness_jar(username):
+    if 'username' not in session or session['username'] != username:
         return jsonify({'message': 'Unauthorized'}), 401
 
     data = request.json
@@ -245,9 +245,9 @@ def create_happiness_jar():
     return jsonify({'message': 'Create successfully! You can check your jar in Jar Library!'})
 
 # Saddness Jar route Endpoint
-@app.route('/sadnessJar', methods=['POST'])
-def create_sadness_jar():
-    if 'username' not in session:
+@app.route('/sadnessJar/<username>', methods=['POST'])
+def create_sadness_jar(username):
+    if 'username' not in session or session['username'] != username:
         return jsonify({'message': 'Unauthorized'}), 401
 
     data = request.json
@@ -267,7 +267,7 @@ def create_sadness_jar():
     conn.close()
 
     return jsonify({'message': 'Create successfully! You can check your jar in Jar Library!'})
-# Running the APP
 
+# Running the APP
 if __name__ == '__main__':
     app.run(debug=True)

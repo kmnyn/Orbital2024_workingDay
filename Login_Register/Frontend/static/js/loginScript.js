@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Success:', data);
             alert(data.message);
             if (data.message === 'Login successfully!') {
-                window.location.href = '/createJar';
+                window.location.href = data.redirect;
             }
         })
         .catch((error) => {
