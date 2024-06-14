@@ -1,115 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-            margin: 0;
-        }
-        .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        label {
-            margin-bottom: 10px;
-        }
-        input {
-            padding: 10px;
-            margin-bottom: 20px;
-            width: 80%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('verificationForm');
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const enteredOTP = document.getElementById('otp').value;
-                const errorDiv = document.getElementById('error');
-
-                if (enteredOTP.length !== 6) {
-                    errorDiv.textContent = 'Please enter a 6-digit OTP.';
-                    return;
-                }
-
-                const data = { otp: enteredOTP };
-
-                // Dynamically construct the OTP verification URL based on BASE_URL
-                const BASE_URL = window.location.origin; // Use current origin
-                const verifyUrl = BASE_URL + "/verification";
-
-                fetch(verifyUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    if (data.message === 'Email verified successfully!') {
-                        // Redirect to login page or home page upon successful verification
-                        window.location.href = BASE_URL + "/login";
-                    } else {
-                        errorDiv.textContent = data.message;
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    errorDiv.textContent = 'OTP verification failed.';
-                });
-            });
-        });
-    </script>
+    <title>MonoJar Email Verification</title>
+    <link rel="stylesheet" href="/static/css/loginStyle.css">
 </head>
 <body>
     <div class="container">
-        <h1>Email Verification</h1>
-        <p>Please enter the OTP you received via email to verify your email address:</p>
+        <h2>Email Verification</h2>
+
         <form id="verificationForm">
-            <label for="otp">Enter OTP:</label>
-            <input type="text" id="otp" name="otp" required>
+            <input type="text" id="otp" name="otp" placeholder="OTP" required>
             <button type="submit">Verify</button>
         </form>
-        <div id="error" class="error"></div>
-        <!-- Additional verification instructions or content can be added here -->
+
+        <script src="/static/js/config.js"></script>
+        <script src="/static/js/verification.js"></script>
     </div>
 </body>
 </html>

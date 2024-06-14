@@ -1,0 +1,25 @@
+<div class="sidebar">
+    <div class="logo">MonoJar</div>
+
+    <a href="#" class="main-tab" data-target="createjar-submenu">Create Jar</a>
+    <div id="createjar-submenu" class="submenu">
+        <a href="/sadnessJar/{{ username }}">Sadness</a>
+        <a href="/happinessJar/{{ username }}">Happiness</a>
+    </div>
+
+    <a href="#" class="main-tab" data-target="library-submenu">Jar Library</a>
+    <div id="library-submenu" class="submenu">
+        <a href="/sadnessLibrary/{{ username }}">Sadness</a>
+        <a href="/happinessLibrary/{{ username }}">Happiness</a>
+    </div>
+
+    <a href="/timeCapsule/{{ username }}" class="main-tab">Time Capsule</a>
+
+    <a href="#" class="main-tab" data-target="settings-submenu">Settings</a>
+    <div id="settings-submenu" class="submenu">
+        <a href="/editNickname/{{ username }}">Edit Nickname</a>
+        <a href="/notification/{{ username }}">Notifications</a>
+        <a href="/about/{{ username }}">About MonoJar</a>
+        <a href="/logout" id="logout-button">Log Out</a>
+    </div>
+</div>

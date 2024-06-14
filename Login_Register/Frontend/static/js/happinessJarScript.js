@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             console.log('Success:', data);
             alert(data.message); // alert "Create successfully! You can check your jar in Jar Library!"
+            if (data.message.includes('Create successfully')) {
+                form.reset(); // Reset the form upon successful creation
+            }
         })
         .catch((error) => {
             console.error('Error:', error);

@@ -121,6 +121,52 @@ def sadness_jar(username):
 def happiness_jar(username):
     return render_template('happinessJar.html', username=username)
 
+# jars = [
+    # {"id": 1, "type": "Sadness", "content": "I'm sad today..."},
+    # {"id": 2, "type": "Happiness", "content": "I'm happy today..."}
+# ]
+
+# Sadness Library route
+@app.route('/sadnessLibrary/<username>')
+def sadness_library(username):
+    return render_template('sadnessLibrary.html', username=username) # , jars=jars)
+
+# Happiness Library route
+@app.route('/happinessLibrary/<username>')
+def happiness_library(username):
+    return render_template('happinessLibrary.html', username=username) # , jars=jars)
+
+# @app.route('/deleteJar/<int:jar_id>', methods=['DELETE'])
+# def delete_jar(jar_id):
+    # global jars
+    # jar_to_delete = next((jar for jar in jars if jar['id'] == jar_id), None)
+    
+    # if jar_to_delete:
+        # jars = [jar for jar in jars if jar['id'] != jar_id]
+        # return jsonify({"success": True})
+    # else:
+        # return jsonify({"success": False, "error": "Jar not found"}), 404
+
+# Time Capsule route
+@app.route('/timeCapsule/<username>')
+def time_capsule(username):
+    return render_template('timeCapsule.html', username=username)
+
+# Edit Nickname route
+@app.route('/editNickname/<username>')
+def edit_nickname(username):
+    return render_template('editNickname.html', username=username)
+
+# Notification route
+@app.route('/notification/<username>')
+def notification(username):
+    return render_template('notification.html', username=username)
+
+# About route
+@app.route('/about/<username>')
+def about(username):
+    return render_template('about.html', username=username)
+
 # Registration route Endpoint
 @app.route('/register', methods=['POST'])
 def register():
@@ -213,7 +259,6 @@ def login():
 
 
 # Logout route git
-
 @app.route('/logout')
 def logout():
     session.pop('username', None)
