@@ -4,7 +4,12 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-
+        /*
+        const data = {
+        happiness_input: form.querySelector('textarea[name="happiness_input"]').value
+       };
+        */
+    
         // Dynamically construct the login URL based on BASE_URL and username
         const happinessJarUrl = BASE_URL + "/happinessJar/" + username;
 

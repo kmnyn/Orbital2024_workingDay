@@ -10,12 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (confirmed) {
                 fetch(`/deleteJar/${jarId}`, {
-                    method: 'DELETE',
+                    method: 'DELETE', //POST OR DELETE ?
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         this.parentElement.remove();
+                        alert(data.message);
                     } else {
                         alert('Failed to delete jar. Please try again.');
                     }
