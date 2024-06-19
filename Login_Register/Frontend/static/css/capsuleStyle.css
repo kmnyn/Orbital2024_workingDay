@@ -1,4 +1,4 @@
-.date {
+.datetime {
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -12,13 +12,13 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.date:focus {
+.datetime:focus {
     border-color: #66afe9;
     box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
     outline: none;
 }
 
-.date:hover {
+.datetime:hover {
     border-color: #777676;
 }
 
