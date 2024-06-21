@@ -13,7 +13,11 @@
         <a href="/happinessLibrary/{{ username }}">Happiness</a>
     </div>
 
-    <a href="/timeCapsule/{{ username }}" class="main-tab">Time Capsule</a>
+    <a href="#" class="main-tab" data-target="capsule-submenu">Time Capsule</a>
+    <div id="capsule-submenu" class="submenu">
+        <a href="/timeCapsule/{{ username }}">Create Capsule</a>
+        <a href="/capsuleLibrary/{{ username }}">Capsule Library</a>
+    </div>
 
     <a href="#" class="main-tab" data-target="settings-submenu">Settings</a>
     <div id="settings-submenu" class="submenu">

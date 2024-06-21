@@ -198,10 +198,10 @@ def delete_jar(jar_id):
 def time_capsule(username):
     return render_template('timeCapsule.html', username=username)
 
-# Edit Nickname route
-@app.route('/editNickname/<username>')
-def edit_nickname(username):
-    return render_template('editNickname.html', username=username)
+# Capsule Library route
+@app.route('/capsuleLibrary/<username>')
+def capsule_library(username):
+    return render_template('capsuleLibrary.html', username=username)
 
 # Notification route
 @app.route('/notification/<username>')

@@ -13,13 +13,13 @@
         
         <ul id="jar-list">
             {% for jar in jars %}
-            <li class="content jar">
-                {{ jar.type }} Jar - {{ jar.content }}
+            <li class="content jar collapsed" id="jar-{{ jar.id }}">
+                <p>{{ jar.type }} Jar - {{ jar.content }}</p>
+                <button class="expand-button" data-jar-id="{{ jar.id }}">Show More</button>
                 <button class="delete-button" data-jar-id="{{ jar.id }}">Delete</button>
             </li>
             {% endfor %}
         </ul>
-    </div>
     </div>
 </div>
 {% endblock %}
