@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Happiness Library</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <ul id="jar-list">
+            {% for jar in jars %}
+            <li class="content jar collapsed" id="jar-{{ jar.id }}">
+                <p>{{ jar.type }} Jar - {{ jar.content }}</p>
+                <button class="expand-button" data-jar-id="{{ jar.id }}">Show More</button>
+                <button class="delete-button" data-jar-id="{{ jar.id }}">Delete</button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

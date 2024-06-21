@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Capsule Library</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <div class="container">
+            <div class="capsule-container">
+                <h2>Time Capsule</h2>
+                <div id="capsule-content"></div>
+            </div>
+            
+            <div class="upcoming-container">
+                <h2>Upcoming Capsules</h2>
+                <div id="upcoming-dates"></div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
