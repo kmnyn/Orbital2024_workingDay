@@ -19,10 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             console.log('Success:', data);
             alert(data.message);
-            if (data.message.includes('Registered successfully!')) {
-                // Redirect to the verification page if registration is successful
-                window.location.href = BASE_URL + "/verification";
-            }
+            form.reset();
         })
         .catch((error) => {
             console.error('Error:', error);

@@ -1,25 +1,13 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, g
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail, Message
-import random
-from apscheduler.schedulers.background import BackgroundScheduler # Remember to Configure Python Interpreter
+from apscheduler.schedulers.background import BackgroundScheduler 
 from datetime import datetime
 import atexit
 
 # Create Flask application instance
 app = Flask(__name__, template_folder='../Frontend/templates', static_folder='../Frontend/static')
 app.secret_key = 'mojodojocasahouse'
-
-# Configure Flask-mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587 
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'workingday007@gmail.com'
-app.config['MAIL_PASSWORD'] = 'tdfn jsds fhrs ocng'
-app.config['MAIL_DEFAULT_SENDER'] = 'workingday007@gmail.com'
-mail = Mail(app)
 
 DATABASE = 'monojar.db'
 
@@ -34,25 +22,9 @@ def get_db():
             CREATE TABLE IF NOT EXISTS users (
                 username TEXT PRIMARY KEY,
                 email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                verified INTEGER DEFAULT 0
-            )
-        ''')
-
-        # Add the verified column if it doesn't exist
-        cursor.execute('PRAGMA table_info(users)')
-        columns = [column[1] for column in cursor.fetchall()]
-        if 'verified' not in columns:
-            cursor.execute('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0')
-
-        # Create the temporary users table for verification
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS temp_users (
-                username TEXT PRIMARY KEY,
-                email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL
             )
-        ''')        
+        ''')  
 
         # Create the jars table with auto-incremented ID as the primary key if it doesn't exist
         cursor.execute('''
@@ -95,18 +67,6 @@ def close_db(exception):
     if db is not None:
         db.close()
 
-# Send OTP email for verification
-def send_otp_email(email):
-    otp = random.randint(100000, 999999)  # Generate a random 6-digit OTP
-    msg = Message('MonoJar Email Verification OTP', sender='workingday007@gmail.com', recipients=[email])
-    msg.body = f'Your OTP for email verification is: {otp}'
-
-    try:
-        mail.send(msg)
-        return otp
-    except Exception as e:
-        print(f"Failed to send email: {e}")
-        return None
 
 # APScheduler
 scheduler = BackgroundScheduler()
@@ -128,11 +88,6 @@ def login_page():
 @app.route('/register')
 def register_page():
     return render_template('register.html')
-
-# Verification page route
-@app.route('/verification')
-def verification_page():
-    return render_template('verification.html')
 
 # Create Jar route
 @app.route('/createJar/<username>')
@@ -200,7 +155,7 @@ def time_capsule(username):
 
 # Capsule Library route
 @app.route('/capsuleLibrary/<username>')
-def capsule_library(username):
+def capsule_library_page(username):
     return render_template('capsuleLibrary.html', username=username)
 
 # Notification route
@@ -225,61 +180,14 @@ def register():
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO temp_users (username, email, password) VALUES (?, ?, ?)', 
+        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
                        (username, email, hashed_password))
         conn.commit()
-
-        otp = send_otp_email(email)
-        session['otp'] = otp
-        session['email'] = email
-
-        return jsonify({'message': 'Registered successfully! Please verify your email.'})
+        conn.close()
+        return jsonify({'message': 'Registered successfully!'})
     except sqlite3.IntegrityError:
         return jsonify({'message': 'Username or email already registered!'}), 400
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500
-    finally:
-        conn.close()
 
-
-# Verification route Endpoint
-@app.route('/verification', methods=['POST'])
-def verification():
-    data = request.json
-    entered_otp = data['otp']
-    expected_otp = session.get('otp')
-    email = session.get('email')
-
-    if not expected_otp or not email:
-        return jsonify({'message': 'Session expired! Please register again.'}), 400
-
-    if str(entered_otp) == str(expected_otp):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM temp_users WHERE email = ?', (email,))
-            user = cursor.fetchone()
-
-            if user:
-                username, email, password = user[2]
-                cursor.execute('INSERT INTO users (username, email, password, verified) VALUES (?, ?, ?, 1)', 
-                               (username, email, password))
-                cursor.execute('DELETE FROM temp_users WHERE email = ?', (email,))
-                conn.commit()
-                session.pop('otp', None)
-                session.pop('email', None)
-                session.pop('username', None)
-                return jsonify({'message': 'Email verified successfully!'})
-            else:
-                return jsonify({'message': 'User not found in temporary table!'}), 400
-        except sqlite3.IntegrityError:
-            return jsonify({'message': 'Username or email already registered!'}), 400
-        except Exception as e:
-            return jsonify({'message': 'An unexpected error occurred. Please try again later.'}), 500
-        finally:
-            conn.close()
-    else:
-        return jsonify({'message': 'Invalid OTP! Please try again.'}), 400
 
 # Login route Endpoint
 @app.route('/login', methods=['POST'])
@@ -290,16 +198,13 @@ def login():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT username, email, password, verified FROM users WHERE username = ?', (username,))
+    cursor.execute('SELECT username, email, password FROM users WHERE username = ?', (username,))
     user = cursor.fetchone()
     conn.close()
 
     if user and check_password_hash(user[2], password):
-        if user[3] == 1:
-            session['username'] = user[0]
-            return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
-        else:
-            return jsonify({'message': 'User not verified!'}), 403
+        session['username'] = user[0]
+        return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
     else:
         return jsonify({'message': 'Invalid credentials!'}), 400
 
@@ -395,19 +300,15 @@ def create_time_capsule(username):
     conn.commit()
     conn.close()
 
+    #debug
+    print(f"Capsule created: username={username}, content={capsule_content}, scheduled_datetime={scheduled_datetime_str}")
+
     """
     <Varied capsule type>
     cursor.execute('''
         INSERT INTO capsules (username, type, content, scheduled_date) VALUES (?, ?, ?, ?)
     ''', (username, capsule_type, capsule_content, scheduled_date))
     """
-
-    scheduler.add_job(
-        send_capsule,
-        'date',
-        run_date=scheduled_datetime,
-        args=[username, capsule_content]
-    )
 
     """
     <Varied capsule type>
@@ -416,30 +317,30 @@ def create_time_capsule(username):
 
     return jsonify({'success': True, 'message': 'Time capsule created successfully!'})
 
-# Send time capsule email
-def send_capsule(username, capsule_content):
-    with app.app_context():
+# Capsule Library route Endpoint
+@app.route('/capsuleLibrary/<username>', methods=['GET'])
+def capsule_library(username):
+    try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT email FROM users WHERE username = ?', (username,))
-        user = cursor.fetchone()
+        cursor.execute('SELECT id, content, scheduled_datetime FROM capsules WHERE username = ? ORDER BY scheduled_datetime ASC', (username,))
+        capsules = cursor.fetchall()
 
-        if user:
-            user_email = user[0]
-            msg = Message(
-                'A message from your past self', 
-                sender=app.config['MAIL_DEFAULT_SENDER'],
-                recipients=[user_email]
-            )
-            msg.body = capsule_content
+        capsule_data = [
+            {
+                'id': capsule[0],
+                'content': capsule[1],
+                'scheduled_datetime': capsule[2]
+            }
+            for capsule in capsules
+        ]
 
-            try:
-                mail.send(msg)
-                return f"Email sent successfully to {user_email}"
-            except Exception as e:
-                print(f"Failed to send email: {e}")
-                return None
+        print(f"Capsules fetched for {username}: {capsule_data}")
 
+        return jsonify(capsule_data)
+    except Exception as e:
+        print(f"Error fetching capsules for {username}: {e}")
+        return jsonify({'error': str(e)}), 500
 
 # Running the APP
 if __name__ == '__main__':
