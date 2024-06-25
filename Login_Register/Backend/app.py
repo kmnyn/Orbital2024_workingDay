@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler 
-from datetime import datetime, timedelta
+from datetime import datetime
 import atexit
 
 # Create Flask application instance
@@ -73,7 +73,6 @@ def close_db(exception):
     db = g.pop('db', None)
     if db is not None:
         db.close()
-
 
 # APScheduler
 scheduler = BackgroundScheduler()
@@ -155,7 +154,7 @@ def delete_jar(jar_id):
         return jsonify({"success": False, "error": "Jar not found"}), 404
 
 
-# Time Capsule route
+# Create Capsule route
 @app.route('/timeCapsule/<username>')
 def time_capsule(username):
     return render_template('timeCapsule.html', username=username)
@@ -261,7 +260,7 @@ def create_sadness_jar(username):
 
     return jsonify({'message': 'Create successfully! You can check your jar in Jar Library!'})
 
-# Time Capsule route Endpoint
+# Create Capsule route Endpoint
 @app.route('/timeCapsule/<username>', methods=['POST'])
 def create_time_capsule(username):
     data = request.json
@@ -318,30 +317,6 @@ def create_time_capsule(username):
     """
 
     return jsonify({'success': True, 'message': 'Time capsule created successfully!'})
-
-# Capsule Library route Endpoint
-#@app.route('/capsuleLibrary/<username>', methods=['GET'])
-#def capsule_library(username):
-#    try:
-#       conn = get_db()
-#       cursor = conn.cursor()
-#       cursor.execute('SELECT id, content, scheduled_datetime FROM capsules WHERE username = ? ORDER BY scheduled_datetime ASC', (username,))
-#       capsules = cursor.fetchall()
-       
-#       capsule_data = [
-#            {
-#                'id': capsule[0],
-#                'content': capsule[1],
-#                'scheduled_datetime': capsule[2]
-#            }
-#            for capsule in capsules
-#       ]
-       
-#       print(f"Capsules fetched for {username}: {capsule_data}")
-#       return jsonify(capsule_data)
-#    except Exception as e:
-#        print(f"Error fetching capsules for {username}: {e}")
-#        return jsonify({'error': str(e)}), 500
 
 # Capsule Library Today route Endpoint
 @app.route('/capsuleLibrary/today/<username>', methods=['GET'])
