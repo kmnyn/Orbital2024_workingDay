@@ -337,12 +337,15 @@ def create_time_capsule(username):
 def get_today_capsule(username):
     now = datetime.now()
     start_of_today = datetime(now.year, now.month, now.day)
+    logging.debug(f"Current time: {now}, Start of today: {start_of_today}")
 
     capsule = query_db(
         'SELECT content FROM capsules WHERE username = ? AND scheduled_datetime BETWEEN ? AND ? ORDER BY scheduled_datetime DESC LIMIT 1',
         [username, start_of_today, now],
         one=True
     )
+    logging.debug(f"Capsule content: {capsule}")
+    
     if capsule:
         return jsonify({'content': capsule[0]})
     else:
