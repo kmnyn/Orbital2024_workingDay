@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        // Dynamically construct the login URL based on BASE_URL
+        // Dynamically construct the URL based on BASE_URL
         const RegisterUrl = BASE_URL + "/register";
 
         fetch(RegisterUrl, {  // Use the dynamically constructed RegisterUrl

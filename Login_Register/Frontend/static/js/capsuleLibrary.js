@@ -1,68 +1,39 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const capsuleContent = document.getElementById('capsule-content');
-    const upcomingDates = document.getElementById('upcoming-dates');
+document.addEventListener('DOMContentLoaded', function() {
 
-    // debug
-    console.log("capsuleContent element:", capsuleContent);
-    console.log("upcomingDates element:", upcomingDates);
-    
-    // Dynamically construct the login URL based on BASE_URL and username
-    const capsuleLibraryUrl = BASE_URL + "/capsuleLibrary/" + username;
+    // Dynamically construct the URL based on BASE_URL and username
+    const todayUrl = BASE_URL + "/capsuleLibrary/today/" + username;
+    const upcomingUrl = BASE_URL + "/capsuleLibrary/upcoming/" + username;
 
-    fetch(capsuleLibraryUrl)
+    fetch(todayUrl)
         .then(response => response.json())
         .then(data => {
-
-            //debug
-            console.log("Fetched capsules data:", data);
-
-            const now = new Date();
-            let upcoming = '';
-            let currentCapsuleContent = '';
-
-            for (let i = 0; i < data.length; i++) {
-                const capsule = data[i];
-                const capsuleDate = new Date(capsule.scheduled_datetime);
-
-                if (capsuleDate <= now) {
-                    // This capsule's time has come or passed
-                    currentCapsuleContent = capsule.content;
-
-                    // Check if the next capsule exists
-                    const nextCapsule = data[i + 1];
-                    if (nextCapsule) {
-                        const nextCapsuleDate = new Date(nextCapsule.scheduled_datetime);
-                        if (now < nextCapsuleDate) {
-                            // Current time is before the next capsule's scheduled time
-                            break;
-                        }
-                    } else {
-                        // No mor capsules, display the last one
-                        break;
-                    }
-                } else {
-                    // Upcoming capsules
-                    upcoming += `<div>${capsuleDate.toISOString().split('T')[0]} ${capsuleDate.toISOString().split('T')[1].substring(0, 5)}</div>`;
-                }
-            }
-
-            //debug
-            console.log("Current capsule content:", currentCapsuleContent);
-            console.log("Upcoming capsules:", upcoming);
-
-            if (currentCapsuleContent) {
-                capsuleContent.innerText = currentCapsuleContent;
+            const todayCapsule = document.getElementById('today-capsule');
+            if (data.content) {
+                todayCapsule.innerHTML = `<p>${data.content}</p>`;
             } else {
-                capsuleContent.innerText = 'No capsule to display at the moment';
-            }
-
-            if (upcoming) {
-                upcomingDates.innerHTML = upcoming;
-            } else {
-                upcomingDates.innerText = 'No upcoming capsules';
+                todayCapsule.innerHTML = '<p>No capsule for now.</p>';
             }
         })
         .catch(error => {
-            console.error('Error fetching capsules:', error);
+            console.error('Error fetching today\'s capsule:', error);
+            document.getElementById('today-capsule').innerHTML = '<p>Error loading today\'s capsule.</p>';
+        });
+
+    fetch(upcomingUrl)
+        .then(response => response.json())
+        .then(data => {
+            const upcomingCapsules = document.getElementById('upcoming-capsules');
+            if (data.upcoming_dates && data.upcoming_dates.length > 0) {
+                upcomingCapsules.innerHTML = ''; // Clear any previous content
+                data.upcoming_dates.forEach(date => {
+                    upcomingCapsules.innerHTML += `<p>${date}</p>`;
+                });
+            } else {
+                upcomingCapsules.innerHTML = '<p>No upcoming capsules.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching upcoming capsules:', error);
+            document.getElementById('upcoming-capsules').innerHTML = '<p>Error loading upcoming capsules.</p>';
         });
 });

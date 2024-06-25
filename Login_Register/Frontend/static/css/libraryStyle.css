@@ -18,7 +18,13 @@
     position: relative;
 }
 
-.jar p, .jar h2 {
+.jar p {
+    margin: 0;
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+.jar h2 {
     margin: 0;
     text-align: left;
 }

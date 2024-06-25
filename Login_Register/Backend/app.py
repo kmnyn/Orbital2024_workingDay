@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler 
-from datetime import datetime
+from datetime import datetime, timedelta
 import atexit
 
 # Create Flask application instance
@@ -60,6 +60,13 @@ def get_db():
         # Commit the changes to ensure the table is created
         g.db.commit()
     return g.db
+
+# query db for capsule library
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
 
 @app.teardown_appcontext
 def close_db(exception):
@@ -157,11 +164,6 @@ def time_capsule(username):
 @app.route('/capsuleLibrary/<username>')
 def capsule_library_page(username):
     return render_template('capsuleLibrary.html', username=username)
-
-# Notification route
-@app.route('/notification/<username>')
-def notification(username):
-    return render_template('notification.html', username=username)
 
 # About route
 @app.route('/about/<username>')
@@ -318,29 +320,55 @@ def create_time_capsule(username):
     return jsonify({'success': True, 'message': 'Time capsule created successfully!'})
 
 # Capsule Library route Endpoint
-@app.route('/capsuleLibrary/<username>', methods=['GET'])
-def capsule_library(username):
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, content, scheduled_datetime FROM capsules WHERE username = ? ORDER BY scheduled_datetime ASC', (username,))
-        capsules = cursor.fetchall()
+#@app.route('/capsuleLibrary/<username>', methods=['GET'])
+#def capsule_library(username):
+#    try:
+#       conn = get_db()
+#       cursor = conn.cursor()
+#       cursor.execute('SELECT id, content, scheduled_datetime FROM capsules WHERE username = ? ORDER BY scheduled_datetime ASC', (username,))
+#       capsules = cursor.fetchall()
+       
+#       capsule_data = [
+#            {
+#                'id': capsule[0],
+#                'content': capsule[1],
+#                'scheduled_datetime': capsule[2]
+#            }
+#            for capsule in capsules
+#       ]
+       
+#       print(f"Capsules fetched for {username}: {capsule_data}")
+#       return jsonify(capsule_data)
+#    except Exception as e:
+#        print(f"Error fetching capsules for {username}: {e}")
+#        return jsonify({'error': str(e)}), 500
 
-        capsule_data = [
-            {
-                'id': capsule[0],
-                'content': capsule[1],
-                'scheduled_datetime': capsule[2]
-            }
-            for capsule in capsules
-        ]
+# Capsule Library Today route Endpoint
+@app.route('/capsuleLibrary/today/<username>', methods=['GET'])
+def get_today_capsule(username):
+    now = datetime.now()
+    start_of_today = datetime(now.year, now.month, now.day)
 
-        print(f"Capsules fetched for {username}: {capsule_data}")
+    capsule = query_db(
+        'SELECT content FROM capsules WHERE username = ? AND scheduled_datetime BETWEEN ? AND ? ORDER BY scheduled_datetime DESC LIMIT 1',
+        [username, start_of_today, now],
+        one=True
+    )
+    if capsule:
+        return jsonify({'content': capsule[0]})
+    else:
+        return jsonify({'content': None})
 
-        return jsonify(capsule_data)
-    except Exception as e:
-        print(f"Error fetching capsules for {username}: {e}")
-        return jsonify({'error': str(e)}), 500
+# Capsule Library Upcoming route Endpoint
+@app.route('/capsuleLibrary/upcoming/<username>', methods=['GET'])
+def get_upcoming_capsules(username):
+    now = datetime.now()
+    upcoming_capsules = query_db(
+        'SELECT scheduled_datetime FROM capsules WHERE username = ? AND scheduled_datetime > ? ORDER BY scheduled_datetime',
+        [username, now]
+    )
+    upcoming_dates = [capsule[0] for capsule in upcoming_capsules]
+    return jsonify({'upcoming_dates': upcoming_dates})
 
 # Running the APP
 if __name__ == '__main__':

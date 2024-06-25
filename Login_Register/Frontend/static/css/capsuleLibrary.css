@@ -5,7 +5,8 @@
     background-color: #fbcfab;
     width: 430px;
     height: 570px;
-    overflow: hidden;
+    overflow: auto;
+    font-size: 18px;
 }
 
 .capsule-container h2, .upcoming-container h2 {
@@ -14,10 +15,6 @@
     font-size: 22px;
 }
 
-#capsule-content {
-    margin-top: 10px;
-}
-
-#upcoming-dates {
-    margin-top: 10px;
+.capsule-container p, .upcoming-container p {
+    white-space: pre-wrap;
 }
