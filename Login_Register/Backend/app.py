@@ -5,12 +5,16 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import atexit
 import logging
+import pytz
 
 # Create Flask application instance
 app = Flask(__name__, template_folder='../Frontend/templates', static_folder='../Frontend/static')
 app.secret_key = 'mojodojocasahouse'
 
 DATABASE = 'monojar.db'
+
+# Set timezone to GMT+8
+timezone = pytz.timezone('Asia/Singapore')
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -335,7 +339,7 @@ def create_time_capsule(username):
 # Capsule Library Today route Endpoint
 @app.route('/capsuleLibrary/today/<username>', methods=['GET'])
 def get_today_capsule(username):
-    now = datetime.now()
+    now = datetime.now(timezone)
     start_of_today = datetime(now.year, now.month, now.day)
     logging.debug(f"Current time: {now}, Start of today: {start_of_today}")
 
@@ -345,7 +349,7 @@ def get_today_capsule(username):
         one=True
     )
     logging.debug(f"Capsule content: {capsule}")
-    
+
     if capsule:
         return jsonify({'content': capsule[0]})
     else:
@@ -354,7 +358,7 @@ def get_today_capsule(username):
 # Capsule Library Upcoming route Endpoint
 @app.route('/capsuleLibrary/upcoming/<username>', methods=['GET'])
 def get_upcoming_capsules(username):
-    now = datetime.now()
+    now = datetime.now(timezone)
     upcoming_capsules = query_db(
         'SELECT scheduled_datetime FROM capsules WHERE username = ? AND scheduled_datetime > ? ORDER BY scheduled_datetime',
         [username, now]
