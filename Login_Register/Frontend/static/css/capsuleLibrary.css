@@ -1,0 +1,20 @@
+.capsule-container, .upcoming-container {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #fbcfab;
+    width: 430px;
+    height: 570px;
+    overflow: auto;
+    font-size: 18px;
+}
+
+.capsule-container h2, .upcoming-container h2 {
+    margin: 0;
+    text-align: left;
+    font-size: 22px;
+}
+
+.capsule-container p, .upcoming-container p {
+    white-space: pre-wrap;
+}

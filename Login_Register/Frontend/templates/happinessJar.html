@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Create Happiness Jar</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+
+        <form class="box" id="happinessJarForm">
+            <textarea name="happiness_input" placeholder="(I am happy today!!)" required></textarea>
+            <button type="submit" class="create-button">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

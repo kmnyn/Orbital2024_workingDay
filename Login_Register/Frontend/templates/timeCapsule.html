@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Create Capsule</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+
+        <form class="box" id="capsuleForm">
+            <textarea name="capsule_input" placeholder="(To my future self...)" required></textarea>
+            <p class="text">Insert a datetime below, time capsule will be sent to you via email on this datetime.</p>
+            <input class="datetime" type="date" name="scheduled_date" required>
+            <input class="datetime" type="time" name="scheduled_time" required>
+            <button type="submit" class="create-button">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

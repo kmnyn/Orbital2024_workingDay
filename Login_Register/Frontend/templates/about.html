@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">About MonoJar</div>
+    </div>
+
+    <div class="about-content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <p>
+            <div class="about-text"><p>Gen Z young adults these days are overwhelmed by stress. Highly competitive job market, 
+                increasing social expectations, and a rapidly changing professional landscape all contribute to 
+                <b>various sources of stress</b>. The rising incidence of mental health issues among young adults worldwide 
+                has become a pressing societal problem.</p></div> 
+
+            <div class="about-text"><p>In light of this, we want to <b>raise awareness</b> about their complex emotions 
+                and <b>provide an outlet</b> for them to relieve their stress.</p></div>
+
+            <div class="about-text"><p>That's why we have <b>MonoJar</b>! It is an emotion management application 
+                that takes the form of an <b>imaginative jar</b>, 
+                allowing users to store and manage their complex emotions.</p></div>
+
+            <div class="about-text"><p>---- MonoJar by Li Mengyan & Wang Jia</p></div>
+        </p>
+    </div>
+</div>
+{% endblock %}

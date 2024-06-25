@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        // Dynamically construct the login URL based on BASE_URL
+        // Dynamically construct the URL based on BASE_URL
         const loginUrl = BASE_URL + "/login";
 
         fetch(loginUrl, {  // Use the dynamically constructed loginUrl
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Success:', data);
             alert(data.message);
             if (data.message === 'Login successfully!') {
-                window.location.href = '/dashboard';
+                window.location.href = data.redirect;
             }
         })
         .catch((error) => {
