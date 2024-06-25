@@ -4,12 +4,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler 
 from datetime import datetime
 import atexit
+import logging
 
 # Create Flask application instance
 app = Flask(__name__, template_folder='../Frontend/templates', static_folder='../Frontend/static')
 app.secret_key = 'mojodojocasahouse'
 
 DATABASE = 'monojar.db'
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Initialise database connection (Singleton pattern)
 def get_db():
@@ -186,8 +190,12 @@ def register():
         conn.commit()
         conn.close()
         return jsonify({'message': 'Registered successfully!'})
-    except sqlite3.IntegrityError:
+    except sqlite3.IntegrityError as e:
+        logging.error(f"IntergrityError: {e}")
         return jsonify({'message': 'Username or email already registered!'}), 400
+    except Exception as e:
+        logging.error(f"Exception: {e}")
+        return jsonify({'message': 'Registration failed due to an internal error.'}), 500
 
 
 # Login route Endpoint
@@ -197,17 +205,23 @@ def login():
     username = data['username']
     password = data['password']
 
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT username, email, password FROM users WHERE username = ?', (username,))
-    user = cursor.fetchone()
-    conn.close()
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT username, email, password FROM users WHERE username = ?', (username,))
+        user = cursor.fetchone()
+        conn.close()
 
-    if user and check_password_hash(user[2], password):
-        session['username'] = user[0]
-        return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
-    else:
-        return jsonify({'message': 'Invalid credentials!'}), 400
+        if user and check_password_hash(user[2], password):
+            session['username'] = user[0]
+            return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
+        else:
+            logging.warning(f"Failed login attempt for username: {username}")
+            return jsonify({'message': 'Invalid credentials!'}), 400
+    except Exception as e:
+        logging.error(f"Exception during login: {e}")
+        return jsonify({'message': 'Login failed due to an internal error.'}), 500
+    
 
 
 # Logout route git
