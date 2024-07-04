@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Jar Appearance</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <form action="/saveJarAppearance/{{ username }}" method="POST">
+            <div class="jar-designs">
+                {% set default_jar = 'honeyJar1.png' %}
+                <div>
+                    <label for="honey1">
+                        <img src="/static/image/honeyJar1.png" alt="Honey Jar 1">
+                    </label>
+                    <div>
+                        <input type="radio" id="honey1" name="jar_design" value="honeyJar1.png" {% if jar_design == 'honeyJar1.png' %}checked{% endif %}>
+                        <label for="honey1">Honey Jar 1</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="honey2">
+                        <img src="/static/image/honeyJar2.png" alt="Honey Jar 2">
+                    </label>
+                    <div>
+                        <input type="radio" id="honey2" name="jar_design" value="honeyJar2.png" {% if jar_design == 'honeyJar2.png' %}checked{% endif %}>
+                        <label for="honey2">Honey Jar 2</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="candy">
+                        <img src="/static/image/candyJar.png" alt="Candy Jar">
+                    </label>
+                    <div>
+                        <input type="radio" id="candy" name="jar_design" value="candyJar.png" {% if jar_design == 'candyJar.png' %}checked{% endif %}>
+                        <label for="candy">Candy Jar</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="cookie">
+                        <img src="/static/image/cookieJar.png" alt="Cookie Jar">
+                    </label>
+                    <div>
+                        <input type="radio" id="cookie" name="jar_design" value="cookieJar.png" {% if jar_design == 'cookieJar.png' %}checked{% endif %}>
+                        <label for="cookie">Cookie Jar</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="jam1">
+                        <img src="/static/image/jamJar1.png" alt="Jam Jar 1">
+                    </label>
+                    <div>
+                        <input type="radio" id="jam1" name="jar_design" value="jamJar1.png" {% if jar_design == 'jamJar1.png' %}checked{% endif %}>
+                        <label for="jam1">Jam Jar 1</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="jam2">
+                        <img src="/static/image/jamJar2.png" alt="Jam Jar 2">
+                    </label>
+                    <div>
+                        <input type="radio" id="jam2" name="jar_design" value="jamJar2.png" {% if jar_design == 'jamJar2.png' %}checked{% endif %}>
+                        <label for="jam2">Jam Jar 2</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="money">
+                        <img src="/static/image/moneyJar.png" alt="Money Jar">
+                    </label>
+                    <div>
+                        <input type="radio" id="money" name="jar_design" value="moneyJar.png" {% if jar_design == 'moneyJar.png' %}checked{% endif %}>
+                        <label for="money">Money Jar</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="truffle">
+                        <img src="/static/image/truffleJar.png" alt="Truffle Jar">
+                    </label>
+                    <div>
+                        <input type="radio" id="truffle" name="jar_design" value="truffleJar.png" {% if jar_design == 'truffleJar.png' %}checked{% endif %}>
+                        <label for="truffle">Truffle Jar</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="save-button">Save</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

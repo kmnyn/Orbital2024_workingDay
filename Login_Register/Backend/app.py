@@ -31,6 +31,7 @@ def get_db():
                 username TEXT PRIMARY KEY,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL
+                jar_design TEXT DEFAULT 'honeyJar1.png'
             )
         ''')  
 
@@ -108,7 +109,7 @@ def register_page():
 def create_jar(username):
     if 'username' not in session or session['username'] != username:
         return redirect(url_for('login_page'))
-    return render_template('createJar.html', username=username)
+    return render_template('createJar.html', username=username) # link jar_design
 
 # Sadness Jar route
 @app.route('/sadnessJar/<username>')
@@ -171,6 +172,11 @@ def time_capsule(username):
 @app.route('/capsuleLibrary/<username>')
 def capsule_library_page(username):
     return render_template('capsuleLibrary.html', username=username)
+
+# Jar Appearance route
+@app.route('/jarAppearance/<username>')
+def jar_appearance(username):
+    return render_template('jarAppearance.html', username=username)
 
 # About route
 @app.route('/about/<username>')
@@ -366,6 +372,10 @@ def get_upcoming_capsules(username):
     upcoming_dates = [capsule[0] for capsule in upcoming_capsules]
     return jsonify({'upcoming_dates': upcoming_dates})
 
+# Save Jar Appearance route Endpoint
+# @app.route('/saveJarAppearance/<username>', methods=['POST'])
+# def save_jar_appearance(username):
+    
 # Running the APP
 if __name__ == '__main__':
     app.run(debug=True)
