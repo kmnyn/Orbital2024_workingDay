@@ -58,6 +58,17 @@ def get_db():
             )
         ''')
 
+        # Create the moodCalendar table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS moodCalendar (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                date TEXT NOT NULL,
+                emoji TEXT NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+            )
+        ''')
+
         # Add the jar_design column if it doesn't exist
         cursor.execute('PRAGMA table_info(users)')
         columns = [column[1] for column in cursor.fetchall()]
@@ -408,6 +419,65 @@ def get_upcoming_capsules(username):
     )
     upcoming_dates = [capsule[0] for capsule in upcoming_capsules]
     return jsonify({'upcoming_dates': upcoming_dates})
+
+
+# Save mood route
+@app.route('/save_mood', methods=['POST'])
+def save_mood():
+    data = request.get_json()
+    date = data['date']
+    emoji = data['emoji']
+    username = session.get('username')
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        INSERT INTO moodCalendar (username, date, emoji)
+        VALUES (?, ?, ?)
+    ''', (username, date, emoji))
+    db.commit()
+
+    return jsonify({'status': 'success'})
+
+
+# Get mood route
+@app.route('/get_mood', methods=['GET'])
+def get_mood():
+    username = session.get('username')
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT id, date, emoji FROM moodCalendar WHERE username = ?
+    ''', (username,))
+    moods = cursor.fetchall()
+
+    result = [dict(row) for row in moods]
+
+    return jsonify(result)
+
+# Delete mood route
+@app.route('/delete_mood', methods=['POST'])
+def delete_mood():
+    data = request.get_json()
+    mood_id = data['id']
+    username = session.get('username')
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        DELETE FROM moodCalendar WHERE id = ? AND username = ?
+    ''', (mood_id, username))
+    db.commit()
+
+    return jsonify({'status': 'success'})
 
 # Running the APP
 if __name__ == '__main__':
