@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">Mood Calendar</div>
+    </div>
+
+    <div class="content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <div id="calendar-container">
+            <div id="calendar"></div>
+        </div>
+
+        <div id="instructions">
+            <div>
+                <p>Click on a <strong>date</strong> first and select an <strong>emoji</strong> that represents your mood of the day.</p>
+                <p>Future dates <strong>cannot</strong> be modified.</p>
+                <p>Click on your mood in the calendar to <strong>remove</strong> the mood.</p>
+            </div>
+
+            <div id="emoji-picker" class="hidden">
+                <span class="emoji">🥳</span>
+                <span class="emoji">😊</span>
+                <span class="emoji">😐</span>
+                <span class="emoji">😫</span>
+                <span class="emoji">😭</span>
+                <span class="emoji">😡</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

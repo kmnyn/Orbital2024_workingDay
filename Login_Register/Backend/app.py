@@ -193,7 +193,6 @@ def delete_jar(jar_id):
         conn.close()
         return jsonify({"success": False, "error": "Jar not found"}), 404
 
-
 # Create Capsule route
 @app.route('/timeCapsule/<username>')
 def time_capsule(username):
@@ -203,6 +202,16 @@ def time_capsule(username):
 @app.route('/capsuleLibrary/<username>')
 def capsule_library_page(username):
     return render_template('capsuleLibrary.html', username=username)
+
+# Mood Calendar route
+@app.route('/moodCalendar/<username>')
+def mood_calendar(username):
+    return render_template('moodCalendar.html', username=username)
+
+# Mood Trend route
+@app.route('/moodTrend/<username>')
+def mood_trend(username):
+    return render_template('moodTrend.html', username=username)
 
 # Jar Appearance route
 @app.route('/jarAppearance/<username>')
@@ -238,7 +247,6 @@ def register():
         logging.error(f"Exception: {e}")
         return jsonify({'message': 'Registration failed due to an internal error.'}), 500
 
-
 # Login route Endpoint
 @app.route('/login', methods=['POST'])
 def login():
@@ -263,8 +271,6 @@ def login():
         logging.error(f"Exception during login: {e}")
         return jsonify({'message': 'Login failed due to an internal error.'}), 500
     
-
-
 # Logout route git
 @app.route('/logout')
 def logout():
@@ -402,7 +408,6 @@ def get_upcoming_capsules(username):
     )
     upcoming_dates = [capsule[0] for capsule in upcoming_capsules]
     return jsonify({'upcoming_dates': upcoming_dates})
-
 
 # Running the APP
 if __name__ == '__main__':
