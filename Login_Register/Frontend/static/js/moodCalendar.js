@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 selectedDate = info.dateStr;
                 showEmojiPicker(info.jsEvent.pageX, info.jsEvent.pageY);
             } else {
+                selectedDate = null; // Clear selectedDate if a future date is clicked
+                emojiPicker.classList.add('hidden');
                 alert("Future dates cannot be modified.");
             }
         },
@@ -41,12 +43,25 @@ document.addEventListener("DOMContentLoaded", function() {
     emojis.forEach(emoji => {
         emoji.addEventListener('click', () => {
             if (selectedDate) {
+                saveMood(selectedDate, emoji.textContent).then(() => {
+                    emojiPicker.classList.add('hidden');
+                    calendar.refetchEvents();
+                });
+            }
+        });
+    });
+
+    /*
+    emojis.forEach(emoji => {
+        emoji.addEventListener('click', () => {
+            if (selectedDate) {
                 saveMood(selectedDate, emoji.textContent);
                 emojiPicker.classList.add('hidden');
                 calendar.addEvent({ title: emoji.textContent, start: selectedDate });
             }
         });
     });
+    */
 
     function showEmojiPicker(x, y) {
         emojiPicker.style.left = `${x}px`;
