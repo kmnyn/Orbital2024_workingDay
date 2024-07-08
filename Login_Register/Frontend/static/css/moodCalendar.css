@@ -1,24 +1,26 @@
 #calendar-container {
-    max-width: 800px;
+    display: flex;
+    width: 1100px;
     margin: 100px auto;
-    margin-top: 55px;
-    margin-left: 100px;
+    margin-top: 10px;
+    margin-left: 80px;
 }
 
 #calendar {
-    display: grid;
     width: 650px;
     margin: 0 auto;
 }
 
 #instructions {
-    max-width: 300px;
+    width: 300px;
+    height: 210px;
     margin: 20px auto;
     padding: 10px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: left;
+    margin-top: 80px;
     margin-right: 40px;
 }
 

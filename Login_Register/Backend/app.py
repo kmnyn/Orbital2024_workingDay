@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler 
-from datetime import datetime
+from datetime import datetime, timedelta
 import atexit
 import logging
 import pytz
@@ -422,15 +422,20 @@ def get_upcoming_capsules(username):
 
 
 # Save mood route
-@app.route('/save_mood', methods=['POST'])
-def save_mood():
+@app.route('/saveMood/<username>', methods=['POST'])
+def save_mood(username):
     data = request.get_json()
     date = data['date']
     emoji = data['emoji']
-    username = session.get('username')
 
     db = get_db()
     cursor = db.cursor()
+    cursor.execute('''
+        SELECT COUNT(*) FROM moodCalendar WHERE username = ? AND date = ?
+    ''', (username, date))
+    if cursor.fetchone()[0] > 0:
+        return jsonify({'status': 'error', 'message': 'A mood already exists for this date. Please remove it first.'}), 400
+
     cursor.execute('''
         INSERT INTO moodCalendar (username, date, emoji)
         VALUES (?, ?, ?)
@@ -439,11 +444,24 @@ def save_mood():
 
     return jsonify({'status': 'success'})
 
+# Check Mood route
+@app.route('/checkMood/<username>', methods=['POST'])
+def check_mood(username):
+    data = request.get_json()
+    date = data['date']
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT COUNT(*) FROM moodCalendar WHERE username = ? AND date = ?
+    ''', (username, date))
+    exists = cursor.fetchone()[0] > 0
+
+    return jsonify({'exists': exists})
 
 # Get mood route
-@app.route('/get_mood', methods=['GET'])
-def get_mood():
-    username = session.get('username')
+@app.route('/getMood/<username>', methods=['GET'])
+def get_mood(username):
 
     if not username:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
@@ -461,11 +479,10 @@ def get_mood():
     return jsonify(result)
 
 # Delete mood route
-@app.route('/delete_mood', methods=['POST'])
-def delete_mood():
+@app.route('/deleteMood/<username>', methods=['POST'])
+def delete_mood(username):
     data = request.get_json()
     mood_id = data['id']
-    username = session.get('username')
 
     if not username:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
@@ -478,6 +495,34 @@ def delete_mood():
     db.commit()
 
     return jsonify({'status': 'success'})
+
+# Get mood trend route
+@app.route('/getMoodTrend/<username>', methods=['GET'])
+def get_mood_trend(username):
+    trend_type = request.args.get('type', 'week')
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+
+    if trend_type == 'week':
+        start_date = datetime.now() - timedelta(days=6)
+    else:
+        start_date = datetime.now() - timedelta(days=29)
+
+    cursor.execute('''
+        SELECT date, emoji FROM moodCalendar
+        WHERE username = ? AND date >= ?
+        ORDER BY date ASC
+    ''', (username, start_date.strftime('%Y-%m-%d')))
+    moods = cursor.fetchall()
+
+    result = [{'date': row['date'], 'emoji': row['emoji']} for row in moods]
+
+    return jsonify(result)
 
 # Running the APP
 if __name__ == '__main__':

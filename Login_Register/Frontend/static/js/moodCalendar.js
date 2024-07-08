@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
+
+    // Dynamically construct the URL based on BASE_URL and username
+    const getMoodUrl = BASE_URL + "/getMood/" + username;
+    const saveMoodUrl = BASE_URL + "/saveMood/" + username;
+    const checkMoodUrl = BASE_URL + "/checkMood/" + username;
+    const deleteMoodUrl = BASE_URL + "/deleteMood/" + username;
+
     const calendarEl = document.getElementById('calendar');
     const emojiPicker = document.getElementById('emoji-picker');
     const emojis = document.querySelectorAll(".emoji");
@@ -18,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         },
         events: function(fetchInfo, successCallback, failureCallback) {
-            fetch('/get_mood')
+            fetch(getMoodUrl)
                 .then(response => response.json())
                 .then(data => {
                     const events = data.map(item => ({
@@ -43,25 +50,19 @@ document.addEventListener("DOMContentLoaded", function() {
     emojis.forEach(emoji => {
         emoji.addEventListener('click', () => {
             if (selectedDate) {
-                saveMood(selectedDate, emoji.textContent).then(() => {
-                    emojiPicker.classList.add('hidden');
-                    calendar.refetchEvents();
+                checkMoodExists(selectedDate).then(exists => {
+                    if (exists) {
+                        alert("A mood already exists for this date. Please remove it first.");
+                    } else {
+                        saveMood(selectedDate, emoji.textContent).then(() => {
+                            emojiPicker.classList.add('hidden');
+                            calendar.refetchEvents();
+                        });
+                    }
                 });
             }
         });
     });
-
-    /*
-    emojis.forEach(emoji => {
-        emoji.addEventListener('click', () => {
-            if (selectedDate) {
-                saveMood(selectedDate, emoji.textContent);
-                emojiPicker.classList.add('hidden');
-                calendar.addEvent({ title: emoji.textContent, start: selectedDate });
-            }
-        });
-    });
-    */
 
     function showEmojiPicker(x, y) {
         emojiPicker.style.left = `${x}px`;
@@ -70,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function saveMood(date, emoji) {
-        fetch('/save_mood', {
+        return fetch(saveMoodUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -80,8 +81,19 @@ document.addEventListener("DOMContentLoaded", function() {
           .then(data => console.log(data));
     }
 
+    function checkMoodExists(date) {
+        return fetch(checkMoodUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ date: date })
+        }).then(response => response.json())
+          .then(data => data.exists);
+    }
+
     function deleteMood(id) {
-        fetch('/delete_mood', {
+        fetch(deleteMoodUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Dynamically construct the URL based on BASE_URL and username
         const sadnessJarUrl = BASE_URL + "/sadnessJar/" + username;
 
-        fetch(sadnessJarUrl, {  // Use the dynamically constructed loginUrl
+        fetch(sadnessJarUrl, {  // Use the dynamically constructed Url
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
