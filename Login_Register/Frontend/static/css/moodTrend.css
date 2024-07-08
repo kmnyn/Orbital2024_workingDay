@@ -1,0 +1,16 @@
+.trend-controls {
+    margin: auto; /* Reduce the margin to bring it closer to the chart */
+    text-align: center;
+}
+
+#chart-container {
+    width: 80%;
+    margin: auto; /* Reduce the margin to bring it closer to the trend controls */
+}
+
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Ensure the trend controls and chart are stacked vertically */
+}

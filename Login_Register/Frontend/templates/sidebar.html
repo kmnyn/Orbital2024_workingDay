@@ -19,8 +19,15 @@
         <a href="/capsuleLibrary/{{ username }}">Capsule Library</a>
     </div>
 
+    <a href="#" class="main-tab" data-target="mood-submenu">Mood Tracker</a>
+    <div id="mood-submenu" class="submenu">
+        <a href="/moodCalendar/{{ username }}">Mood Calendar</a>
+        <a href="/moodTrend/{{ username }}">Mood Trend</a>
+    </div>
+
     <a href="#" class="main-tab" data-target="settings-submenu">Settings</a>
     <div id="settings-submenu" class="submenu">
+        <a href="/jarAppearance/{{ username }}">Jar Appearance</a>
         <a href="/about/{{ username }}">About MonoJar</a>
         <a href="/logout" id="logout-button">Log Out</a>
     </div>

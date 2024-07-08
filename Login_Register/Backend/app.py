@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler 
-from datetime import datetime
+from datetime import datetime, timedelta
 import atexit
 import logging
 import pytz
@@ -30,7 +30,8 @@ def get_db():
             CREATE TABLE IF NOT EXISTS users (
                 username TEXT PRIMARY KEY,
                 email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                jar_design TEXT DEFAULT 'honeyJar1.png'
             )
         ''')  
 
@@ -56,6 +57,23 @@ def get_db():
                 FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
             )
         ''')
+
+        # Create the moodCalendar table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS moodCalendar (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                date TEXT NOT NULL,
+                emoji TEXT NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+            )
+        ''')
+
+        # Add the jar_design column if it doesn't exist
+        cursor.execute('PRAGMA table_info(users)')
+        columns = [column[1] for column in cursor.fetchall()]
+        if 'jar_design' not in columns:
+            cursor.execute('ALTER TABLE users ADD COLUMN jar_design TEXT DEFAULT "honeyJar1.png"')
 
         # Add the scheduled_datetime column if it doesn't exist
         cursor.execute('PRAGMA table_info(capsules)')
@@ -103,12 +121,37 @@ def login_page():
 def register_page():
     return render_template('register.html')
 
+# Save Jar Appearance route Endpoint
+@app.route('/saveJarAppearance/<username>', methods=['POST'])
+def save_jar_appearance(username):
+    if 'username' not in session or session['username'] != username:
+        return redirect(url_for('login_page'))
+    
+    jar_design = request.form.get('jar_design')
+    if not jar_design:
+        return redirect(url_for('jar_appearance', username=username))
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('UPDATE users SET jar_design = ? WHERE username = ?', (jar_design, username))
+    db.commit()
+
+    return redirect(url_for('create_jar', username=username))
+
 # Create Jar route
 @app.route('/createJar/<username>')
 def create_jar(username):
     if 'username' not in session or session['username'] != username:
         return redirect(url_for('login_page'))
-    return render_template('createJar.html', username=username)
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT jar_design FROM users WHERE username = ?', (username,))
+    user = cursor.fetchone()
+
+    jar_design = user[0] if user else 'honeyJar1.png' # Default
+
+    return render_template('createJar.html', username=username, jar_design=jar_design) 
 
 # Sadness Jar route
 @app.route('/sadnessJar/<username>')
@@ -161,7 +204,6 @@ def delete_jar(jar_id):
         conn.close()
         return jsonify({"success": False, "error": "Jar not found"}), 404
 
-
 # Create Capsule route
 @app.route('/timeCapsule/<username>')
 def time_capsule(username):
@@ -171,6 +213,21 @@ def time_capsule(username):
 @app.route('/capsuleLibrary/<username>')
 def capsule_library_page(username):
     return render_template('capsuleLibrary.html', username=username)
+
+# Mood Calendar route
+@app.route('/moodCalendar/<username>')
+def mood_calendar(username):
+    return render_template('moodCalendar.html', username=username)
+
+# Mood Trend route
+@app.route('/moodTrend/<username>')
+def mood_trend(username):
+    return render_template('moodTrend.html', username=username)
+
+# Jar Appearance route
+@app.route('/jarAppearance/<username>')
+def jar_appearance(username):
+    return render_template('jarAppearance.html', username=username)
 
 # About route
 @app.route('/about/<username>')
@@ -201,7 +258,6 @@ def register():
         logging.error(f"Exception: {e}")
         return jsonify({'message': 'Registration failed due to an internal error.'}), 500
 
-
 # Login route Endpoint
 @app.route('/login', methods=['POST'])
 def login():
@@ -226,8 +282,6 @@ def login():
         logging.error(f"Exception during login: {e}")
         return jsonify({'message': 'Login failed due to an internal error.'}), 500
     
-
-
 # Logout route git
 @app.route('/logout')
 def logout():
@@ -365,6 +419,110 @@ def get_upcoming_capsules(username):
     )
     upcoming_dates = [capsule[0] for capsule in upcoming_capsules]
     return jsonify({'upcoming_dates': upcoming_dates})
+
+
+# Save mood route
+@app.route('/saveMood/<username>', methods=['POST'])
+def save_mood(username):
+    data = request.get_json()
+    date = data['date']
+    emoji = data['emoji']
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT COUNT(*) FROM moodCalendar WHERE username = ? AND date = ?
+    ''', (username, date))
+    if cursor.fetchone()[0] > 0:
+        return jsonify({'status': 'error', 'message': 'A mood already exists for this date. Please remove it first.'}), 400
+
+    cursor.execute('''
+        INSERT INTO moodCalendar (username, date, emoji)
+        VALUES (?, ?, ?)
+    ''', (username, date, emoji))
+    db.commit()
+
+    return jsonify({'status': 'success'})
+
+# Check Mood route
+@app.route('/checkMood/<username>', methods=['POST'])
+def check_mood(username):
+    data = request.get_json()
+    date = data['date']
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT COUNT(*) FROM moodCalendar WHERE username = ? AND date = ?
+    ''', (username, date))
+    exists = cursor.fetchone()[0] > 0
+
+    return jsonify({'exists': exists})
+
+# Get mood route
+@app.route('/getMood/<username>', methods=['GET'])
+def get_mood(username):
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT id, date, emoji FROM moodCalendar WHERE username = ?
+    ''', (username,))
+    moods = cursor.fetchall()
+
+    result = [dict(row) for row in moods]
+
+    return jsonify(result)
+
+# Delete mood route
+@app.route('/deleteMood/<username>', methods=['POST'])
+def delete_mood(username):
+    data = request.get_json()
+    mood_id = data['id']
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        DELETE FROM moodCalendar WHERE id = ? AND username = ?
+    ''', (mood_id, username))
+    db.commit()
+
+    return jsonify({'status': 'success'})
+
+# Get mood trend route
+@app.route('/getMoodTrend/<username>', methods=['GET'])
+def get_mood_trend(username):
+    trend_type = request.args.get('type', 'week')
+
+    if not username:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+
+    if trend_type == 'week':
+        start_date = datetime.now() - timedelta(days=6)
+    else:
+        start_date = datetime.now() - timedelta(days=29)
+
+    cursor.execute('''
+        SELECT date, emoji FROM moodCalendar
+        WHERE username = ? AND date >= ?
+        ORDER BY date ASC
+    ''', (username, start_date.strftime('%Y-%m-%d')))
+    moods = cursor.fetchall()
+
+    result = [{'date': row['date'], 'emoji': row['emoji']} for row in moods]
+
+    return jsonify(result)
 
 # Running the APP
 if __name__ == '__main__':
