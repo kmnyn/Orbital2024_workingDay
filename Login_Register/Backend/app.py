@@ -17,7 +17,7 @@ DATABASE = 'monojar.db'
 timezone = pytz.timezone('Asia/Singapore')
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG) 
 
 # Function to rebuild the users table without email column
 def rebuild_users_table(cursor):
@@ -76,6 +76,7 @@ def get_db():
                 username TEXT NOT NULL,
                 type TEXT NOT NULL,
                 content TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
             )
         ''')
@@ -120,6 +121,24 @@ def get_db():
         # Commit the changes to ensure the table is created
         g.db.commit()
     return g.db
+
+# Function to add the created_at column to existing jars table if it doesn't exist
+def add_created_at_column():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA table_info(jars)')
+    columns = [column[1] for column in cursor.fetchall()]
+    if 'created_at' not in columns:
+        cursor.execute('ALTER TABLE jars ADD COLUMN created_at TIMESTAMP')
+        conn.commit()
+        
+        # Set the created_at value for existing rows
+        cursor.execute('UPDATE jars SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL')
+        conn.commit()
+    conn.close()
+
+with app.app_context():
+    add_created_at_column()
 
 # query db for capsule library
 def query_db(query, args=(), one=False):
@@ -201,12 +220,16 @@ def happiness_jar(username):
 def query_jars(username, jar_type):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, type, content FROM jars WHERE username = ? AND type = ?',
-                   (username, jar_type))
+    cursor.execute('''
+        SELECT id, type, content, created_at 
+        FROM jars 
+        WHERE username = ? AND type = ?
+        ORDER BY created_at DESC
+    ''', (username, jar_type))
     rows = cursor.fetchall()
     conn.close()
 
-    jars = [{'id': row[0], 'type': row[1], 'content': row[2]} for row in rows]
+    jars = [{'id': row[0], 'type': row[1], 'content': row[2], 'created_at': row[3]} for row in rows]
     return jars
 
 # Sadness Library route
@@ -336,7 +359,7 @@ def create_happiness_jar(username):
     jar_type = 'happiness'
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO jars (username, type, content) VALUES (?, ?, ?)', 
+    cursor.execute('INSERT INTO jars (username, type, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)', 
                    (username, jar_type, content))
     conn.commit()
     conn.close()
@@ -358,7 +381,7 @@ def create_sadness_jar(username):
     jar_type = 'sadness'
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO jars (username, type, content) VALUES (?, ?, ?)', 
+    cursor.execute('INSERT INTO jars (username, type, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)', 
                    (username, jar_type, content))
     conn.commit()
     conn.close()
