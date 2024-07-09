@@ -19,21 +19,55 @@ timezone = pytz.timezone('Asia/Singapore')
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+# Function to rebuild the users table without email column
+def rebuild_users_table(cursor):
+    cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS new_users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL,
+            jar_design TEXT DEFAULT 'honeyJar1.png'
+        );
+
+        INSERT INTO new_users (username, password, jar_design)
+        SELECT username, password, jar_design FROM users;
+
+        DROP TABLE users;
+
+        ALTER TABLE new_users RENAME TO users;
+    ''')
+
+
+
 # Initialise database connection (Singleton pattern)
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(DATABASE)
         cursor = g.db.cursor()
 
-        # Create the users table with username as the primary key if it doesn't exist
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                username TEXT PRIMARY KEY,
-                email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                jar_design TEXT DEFAULT 'honeyJar1.png'
-            )
-        ''')  
+        # Check if the users table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        table_exists = cursor.fetchone()
+
+        if table_exists:
+            # Check if the email column exists
+            cursor.execute("PRAGMA table_info(users)")
+            columns = cursor.fetchall()
+            email_column_exists = any(column[1] == 'email' for column in columns)
+
+            if email_column_exists:
+                logging.info("Rebuilding users table to remove email column...")
+                rebuild_users_table(cursor)
+            else:
+                logging.info("Users table already up to date.")
+        else:
+            # Create the users table without the email column
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    username TEXT PRIMARY KEY,
+                    password TEXT NOT NULL,
+                    jar_design TEXT DEFAULT 'honeyJar1.png'
+                )
+            ''')  
 
         # Create the jars table with auto-incremented ID as the primary key if it doesn't exist
         cursor.execute('''
@@ -239,21 +273,20 @@ def about(username):
 def register():
     data = request.json
     username = data['username']
-    email = data['email']
     password = data['password']
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
-                       (username, email, hashed_password))
+        cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', 
+                       (username, hashed_password))
         conn.commit()
         conn.close()
         return jsonify({'message': 'Registered successfully!'})
     except sqlite3.IntegrityError as e:
         logging.error(f"IntergrityError: {e}")
-        return jsonify({'message': 'Username or email already registered!'}), 400
+        return jsonify({'message': 'Username already registered!'}), 400
     except Exception as e:
         logging.error(f"Exception: {e}")
         return jsonify({'message': 'Registration failed due to an internal error.'}), 500
@@ -268,11 +301,11 @@ def login():
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT username, email, password FROM users WHERE username = ?', (username,))
+        cursor.execute('SELECT username, password FROM users WHERE username = ?', (username,))
         user = cursor.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[2], password):
+        if user and check_password_hash(user[1], password):
             session['username'] = user[0]
             return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
         else:

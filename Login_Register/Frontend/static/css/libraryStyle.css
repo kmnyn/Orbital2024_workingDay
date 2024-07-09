@@ -44,6 +44,24 @@ button.delete-button:hover, button.expand-button:hover {
     background-color: #d26516;
 }
 
+button.delete-button img {
+    width: 20px; 
+    height: 20px; 
+    display: block;
+}
+
+button.delete-button {
+    padding: 0; 
+    background-color: transparent; 
+    border: none; 
+    cursor: pointer;
+}
+
+button.delete-button img {
+    width: 24px;
+    height: 24px;
+}
+
 button.expand-button {
     position: absolute;
     right: 20px;

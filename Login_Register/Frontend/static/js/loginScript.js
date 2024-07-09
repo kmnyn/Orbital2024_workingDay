@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            alert(data.message);
             if (data.message === 'Login successfully!') {
                 window.location.href = data.redirect;
             }

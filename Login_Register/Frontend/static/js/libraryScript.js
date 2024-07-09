@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         this.parentElement.remove();
-                        alert(data.message);
                     } else {
                         alert('Failed to delete jar. Please try again.');
                     }
