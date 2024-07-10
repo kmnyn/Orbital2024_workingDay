@@ -18,7 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        this.parentElement.remove();
+                        const jarElement = document.getElementById(`jar-${jarId}`);
+                        if (jarElement) {
+                            jarElement.remove();
+                        }
                     } else {
                         alert('Failed to delete jar. Please try again.');
                     }

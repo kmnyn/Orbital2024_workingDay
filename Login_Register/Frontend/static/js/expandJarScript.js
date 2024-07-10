@@ -1,6 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     const jarList = document.getElementById('jar-list');
 
+    const toggleExpandCollapse = (jarId, shouldExpand) => {
+        const jarElement = document.getElementById(`jar-${jarId}`);
+        const expandButton = jarElement.querySelector('.expand-button');
+        
+        if (shouldExpand) {
+            jarElement.classList.remove('collapsed');
+            jarElement.classList.add('expanded');
+            expandButton.textContent = 'Show Less';
+        } else {
+            jarElement.classList.remove('expanded');
+            jarElement.classList.add('collapsed');
+            expandButton.textContent = 'Show More';
+        }
+    };
+
+    jarList.addEventListener('click', (event) => {
+        if (event.target.classList.contains('expand-button')) {
+            const jarId = event.target.getAttribute('data-jar-id');
+            const jarElement = document.getElementById(`jar-${jarId}`);
+            
+            if (jarElement.classList.contains('collapsed')) {
+                toggleExpandCollapse(jarId, true);
+            } else {
+                toggleExpandCollapse(jarId, false);
+            }
+        }
+    });
+
     const checkContentHeight = () => {
         const jars = document.querySelectorAll('.jar');
         jars.forEach(jar => {
@@ -15,25 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    checkContentHeight();
-
-    jarList.addEventListener('click', (event) => {
-        if (event.target.classList.contains('expand-button')) {
-            const jarId = event.target.getAttribute('data-jar-id');
-            const jarElement = document.getElementById(`jar-${jarId}`);
-
-            if (jarElement.classList.contains('collapsed')) {
-                jarElement.classList.remove('collapsed');
-                jarElement.classList.add('expanded');
-                event.target.textContent = 'Show Less';
-            } else {
-                jarElement.classList.remove('expanded');
-                jarElement.classList.add('collapsed');
-                event.target.textContent = 'Show More';
-                checkContentHeight();
-            }
-        }
-    });
-
     window.addEventListener('resize', checkContentHeight);
+    checkContentHeight(); // Initial check to set the state of the expand buttons
 });
