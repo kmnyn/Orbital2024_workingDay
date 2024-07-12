@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const deleteButtons = document.querySelectorAll('.delete-button');
-    
+
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
             const jarId = this.getAttribute('data-jar-id');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (confirmed) {
                 fetch(`/deleteJar/${jarId}`, {
-                    method: 'DELETE', //POST OR DELETE ?
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
                     }

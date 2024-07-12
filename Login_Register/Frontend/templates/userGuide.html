@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <div class="title">User Guide</div>
+    </div>
+
+    <div class="guide-content">
+        <a href="/createJar/{{ username }}">
+            <button class="back-button">Back</button>
+        </a>
+        
+        <p>
+            <div class="guide-text"><p><b>Create Jar & Jar Library</b> allow you to note down your happy and sad moments in words,
+                so that you can refer back to them in the future! In the Jar Library, you can filter and delete your jars. If your 
+                jar content is very long, a 'Show More' button will appear to help you manage overflowing of content.</p></div> 
+
+            <div class="guide-text"><p><b>Time Capsule & Capusle Library</b> allow you to write a time capsule letter to
+                yourself. E-letters will be delivered to you in-app on the scheduled datetime so that you can observe your
+                own growth across time! Upcoming Capsule also shows the datetime of upcoming capsules to remind you.</p></div>
+
+            <div class="guide-text"><p><b>Mood Tracker</b> allows you to put down your daily mood in the calendar. A line chart
+                that analyses your weekly and monthly mood trend will be provided to you! This allows you to understand
+                your change in mood better.</p></div>
+
+            <div class="guide-text"><p>For personalisation purpose, you can change your <b>Jar Design</b> in Settings.
+                We have plenty of designs for you to choose from!</p></div>
+        </p>
+    </div>
+</div>
+{% endblock %}

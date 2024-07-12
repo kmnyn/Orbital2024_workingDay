@@ -11,6 +11,11 @@
             <button class="back-button">Back</button>
         </a>
         
+        <form id="filter-form" method="GET" action="/filterHappinessJars/{{ username }}">
+            <input type="date" name="filter-date" id="filter-date">
+            <button type="submit">Filter</button>
+        </form>
+
         <ul id="jar-list">
             {% for jar in jars %}
             <li class="content jar collapsed" id="jar-{{ jar.id }}">

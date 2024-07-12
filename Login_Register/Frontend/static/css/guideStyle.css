@@ -1,7 +1,7 @@
-.about-text {
+.guide-text {
     background-color: #FFFFE0;
     width: 90%;
-    max-width: 700px; 
+    max-width: 800px; 
     height: fit-content; 
     box-sizing: border-box;
     text-decoration: none;
@@ -11,14 +11,14 @@
     justify-content: center;
 }
 
-.about-text p {
+.guide-text p {
     margin: 0;
     align-items: center;
     color: #000;
     font-size: 20px;
 }
 
-.about-content {
+.guide-content {
     display: flex;
     flex-wrap: wrap; 
     flex-direction: column;

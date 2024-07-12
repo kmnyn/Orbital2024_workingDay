@@ -81,6 +81,18 @@ def get_db():
             )
         ''')
 
+        # Create the trigger
+        cursor.execute(''' 
+            CREATE TRIGGER IF NOT EXISTS set_gmt_plus_8_time
+            AFTER INSERT ON jars
+            FOR EACH ROW
+            BEGIN
+                UPDATE jars
+                SET created_at = DATETIME(NEW.created_at, '+8 hours')
+                WHERE id = NEW.id;
+            END;
+        ''')
+
         # Create the capsules table with auto-incremented ID as the primary key if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS capsules (
@@ -261,6 +273,30 @@ def delete_jar(jar_id):
         conn.close()
         return jsonify({"success": False, "error": "Jar not found"}), 404
 
+# Filter Sadness Jars route
+@app.route('/filterSadnessJars/<username>', methods=['GET'])
+def filter_sadness_jars(username):
+    filter_date = request.args.get('filter-date')
+    jars = query_jars(username, 'sadness')
+
+    if filter_date:
+        filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+        jars = [jar for jar in jars if datetime.strptime(jar['created_at'], '%Y-%m-%d %H:%M:%S').date() == filter_date]
+
+    return render_template('sadnessLibrary.html', username=username, jars=jars)
+
+# Filter Happiness Jars route
+@app.route('/filterHappinessJars/<username>', methods=['GET'])
+def filter_happiness_jars(username):
+    filter_date = request.args.get('filter-date')
+    jars = query_jars(username, 'happiness')
+
+    if filter_date:
+        filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+        jars = [jar for jar in jars if datetime.strptime(jar['created_at'], '%Y-%m-%d %H:%M:%S').date() == filter_date]
+
+    return render_template('happinessLibrary.html', username=username, jars=jars)
+
 # Create Capsule route
 @app.route('/timeCapsule/<username>')
 def time_capsule(username):
@@ -285,6 +321,11 @@ def mood_trend(username):
 @app.route('/jarAppearance/<username>')
 def jar_appearance(username):
     return render_template('jarAppearance.html', username=username)
+
+# User Guide route
+@app.route('/userGuide/<username>')
+def user_guide(username):
+    return render_template('userGuide.html', username=username)
 
 # About route
 @app.route('/about/<username>')

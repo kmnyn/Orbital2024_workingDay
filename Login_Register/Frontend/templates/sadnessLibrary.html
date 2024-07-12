@@ -4,13 +4,18 @@
 <div class="main-content">
     <div class="header">
         <div class="title">Sadness Library</div>
-    </div>
+    </div> 
 
     <div class="content">
         <a href="/createJar/{{ username }}">
             <button class="back-button">Back</button>
         </a>
         
+        <form id="filter-form" method="GET" action="/filterSadnessJars/{{ username }}">
+            <input type="date" name="filter-date" id="filter-date">
+            <button type="submit">Filter</button>
+        </form>
+
         <ul id="jar-list">
             {% for jar in jars %}
             <li class="content jar collapsed" id="jar-{{ jar.id }}">
