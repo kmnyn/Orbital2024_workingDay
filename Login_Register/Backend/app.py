@@ -17,7 +17,26 @@ DATABASE = 'monojar.db'
 timezone = pytz.timezone('Asia/Singapore')
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG) 
+
+# Function to rebuild the users table without email column
+def rebuild_users_table(cursor):
+    cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS new_users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL,
+            jar_design TEXT DEFAULT 'honeyJar1.png'
+        );
+
+        INSERT INTO new_users (username, password, jar_design)
+        SELECT username, password, jar_design FROM users;
+
+        DROP TABLE users;
+
+        ALTER TABLE new_users RENAME TO users;
+    ''')
+
+
 
 # Initialise database connection (Singleton pattern)
 def get_db():
@@ -25,15 +44,30 @@ def get_db():
         g.db = sqlite3.connect(DATABASE)
         cursor = g.db.cursor()
 
-        # Create the users table with username as the primary key if it doesn't exist
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                username TEXT PRIMARY KEY,
-                email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                jar_design TEXT DEFAULT 'honeyJar1.png'
-            )
-        ''')  
+        # Check if the users table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        table_exists = cursor.fetchone()
+
+        if table_exists:
+            # Check if the email column exists
+            cursor.execute("PRAGMA table_info(users)")
+            columns = cursor.fetchall()
+            email_column_exists = any(column[1] == 'email' for column in columns)
+
+            if email_column_exists:
+                logging.info("Rebuilding users table to remove email column...")
+                rebuild_users_table(cursor)
+            else:
+                logging.info("Users table already up to date.")
+        else:
+            # Create the users table without the email column
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    username TEXT PRIMARY KEY,
+                    password TEXT NOT NULL,
+                    jar_design TEXT DEFAULT 'honeyJar1.png'
+                )
+            ''')  
 
         # Create the jars table with auto-incremented ID as the primary key if it doesn't exist
         cursor.execute('''
@@ -42,8 +76,21 @@ def get_db():
                 username TEXT NOT NULL,
                 type TEXT NOT NULL,
                 content TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
             )
+        ''')
+
+        # Create the trigger
+        cursor.execute(''' 
+            CREATE TRIGGER IF NOT EXISTS set_gmt_plus_8_time
+            AFTER INSERT ON jars
+            FOR EACH ROW
+            BEGIN
+                UPDATE jars
+                SET created_at = DATETIME(NEW.created_at, '+8 hours')
+                WHERE id = NEW.id;
+            END;
         ''')
 
         # Create the capsules table with auto-incremented ID as the primary key if it doesn't exist
@@ -86,6 +133,24 @@ def get_db():
         # Commit the changes to ensure the table is created
         g.db.commit()
     return g.db
+
+# Function to add the created_at column to existing jars table if it doesn't exist
+def add_created_at_column():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA table_info(jars)')
+    columns = [column[1] for column in cursor.fetchall()]
+    if 'created_at' not in columns:
+        cursor.execute('ALTER TABLE jars ADD COLUMN created_at TIMESTAMP')
+        conn.commit()
+        
+        # Set the created_at value for existing rows
+        cursor.execute('UPDATE jars SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL')
+        conn.commit()
+    conn.close()
+
+with app.app_context():
+    add_created_at_column()
 
 # query db for capsule library
 def query_db(query, args=(), one=False):
@@ -167,12 +232,16 @@ def happiness_jar(username):
 def query_jars(username, jar_type):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, type, content FROM jars WHERE username = ? AND type = ?',
-                   (username, jar_type))
+    cursor.execute('''
+        SELECT id, type, content, created_at 
+        FROM jars 
+        WHERE username = ? AND type = ?
+        ORDER BY created_at DESC
+    ''', (username, jar_type))
     rows = cursor.fetchall()
     conn.close()
 
-    jars = [{'id': row[0], 'type': row[1], 'content': row[2]} for row in rows]
+    jars = [{'id': row[0], 'type': row[1], 'content': row[2], 'created_at': row[3]} for row in rows]
     return jars
 
 # Sadness Library route
@@ -204,6 +273,30 @@ def delete_jar(jar_id):
         conn.close()
         return jsonify({"success": False, "error": "Jar not found"}), 404
 
+# Filter Sadness Jars route
+@app.route('/filterSadnessJars/<username>', methods=['GET'])
+def filter_sadness_jars(username):
+    filter_date = request.args.get('filter-date')
+    jars = query_jars(username, 'sadness')
+
+    if filter_date:
+        filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+        jars = [jar for jar in jars if datetime.strptime(jar['created_at'], '%Y-%m-%d %H:%M:%S').date() == filter_date]
+
+    return render_template('sadnessLibrary.html', username=username, jars=jars)
+
+# Filter Happiness Jars route
+@app.route('/filterHappinessJars/<username>', methods=['GET'])
+def filter_happiness_jars(username):
+    filter_date = request.args.get('filter-date')
+    jars = query_jars(username, 'happiness')
+
+    if filter_date:
+        filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+        jars = [jar for jar in jars if datetime.strptime(jar['created_at'], '%Y-%m-%d %H:%M:%S').date() == filter_date]
+
+    return render_template('happinessLibrary.html', username=username, jars=jars)
+
 # Create Capsule route
 @app.route('/timeCapsule/<username>')
 def time_capsule(username):
@@ -229,6 +322,11 @@ def mood_trend(username):
 def jar_appearance(username):
     return render_template('jarAppearance.html', username=username)
 
+# User Guide route
+@app.route('/userGuide/<username>')
+def user_guide(username):
+    return render_template('userGuide.html', username=username)
+
 # About route
 @app.route('/about/<username>')
 def about(username):
@@ -239,21 +337,20 @@ def about(username):
 def register():
     data = request.json
     username = data['username']
-    email = data['email']
     password = data['password']
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
-                       (username, email, hashed_password))
+        cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', 
+                       (username, hashed_password))
         conn.commit()
         conn.close()
         return jsonify({'message': 'Registered successfully!'})
     except sqlite3.IntegrityError as e:
         logging.error(f"IntergrityError: {e}")
-        return jsonify({'message': 'Username or email already registered!'}), 400
+        return jsonify({'message': 'Username already registered!'}), 400
     except Exception as e:
         logging.error(f"Exception: {e}")
         return jsonify({'message': 'Registration failed due to an internal error.'}), 500
@@ -268,11 +365,11 @@ def login():
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT username, email, password FROM users WHERE username = ?', (username,))
+        cursor.execute('SELECT username, password FROM users WHERE username = ?', (username,))
         user = cursor.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[2], password):
+        if user and check_password_hash(user[1], password):
             session['username'] = user[0]
             return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
         else:
@@ -303,7 +400,7 @@ def create_happiness_jar(username):
     jar_type = 'happiness'
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO jars (username, type, content) VALUES (?, ?, ?)', 
+    cursor.execute('INSERT INTO jars (username, type, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)', 
                    (username, jar_type, content))
     conn.commit()
     conn.close()
@@ -325,7 +422,7 @@ def create_sadness_jar(username):
     jar_type = 'sadness'
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO jars (username, type, content) VALUES (?, ?, ?)', 
+    cursor.execute('INSERT INTO jars (username, type, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)', 
                    (username, jar_type, content))
     conn.commit()
     conn.close()

@@ -3,7 +3,8 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 900px;
+    max-width: 90%;
+    width: 900px; 
     height: fit-content;
     box-sizing: border-box;
     text-decoration: none;
@@ -11,7 +12,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: space-between;
     transition: transform 0.2s;
     margin-bottom: 10px;
     overflow: hidden;
@@ -22,6 +23,8 @@
     margin: 0;
     text-align: left;
     white-space: pre-wrap;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
 }
 
 .jar h2 {
@@ -29,7 +32,12 @@
     text-align: left;
 }
 
-button.delete-button, button.expand-button {
+.jar-controls {
+    display: flex;
+    justify-content: center;
+}
+
+button.expand-button {
     font-family: 'Georgia', serif;
     padding: 10px;
     color: #fff;
@@ -38,19 +46,37 @@ button.delete-button, button.expand-button {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
 }
 
-button.delete-button:hover, button.expand-button:hover {
+button.expand-button:hover {
     background-color: #d26516;
 }
 
-button.expand-button {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
+button.delete-button {
+    padding: 0; 
+    background-color: transparent; 
+    border: none; 
+    cursor: pointer;
+}
+
+button.delete-button img {
+    width: 24px;
+    height: 24px;
+}
+
+button.delete-button:hover {
+    transform: scale(1.1);
+}
+
+.created-at {
+    margin-right: 10px;
 }
 
 .jar.collapsed p {
+    max-height: 200px;
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Number of lines to show */
     -webkit-box-orient: vertical;
@@ -64,4 +90,28 @@ button.expand-button {
 
 .jar.expanded {
     max-height: none;
+}
+
+#filter-form {
+    margin-top: 20px;
+}
+
+#filter-date {
+    margin-right: 20px;
+    padding: 10px;
+}
+
+#filter-form button {
+    font-family: 'Georgia', serif;
+    padding: 5px 10px;
+    background-color: #d68043;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 35px;
+}
+
+#filter-form button:hover {
+    background-color: #d26516;
 }

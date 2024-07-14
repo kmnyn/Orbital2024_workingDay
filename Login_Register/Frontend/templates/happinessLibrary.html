@@ -11,12 +11,22 @@
             <button class="back-button">Back</button>
         </a>
         
+        <form id="filter-form" method="GET" action="/filterHappinessJars/{{ username }}">
+            <input type="date" name="filter-date" id="filter-date">
+            <button type="submit">Filter</button>
+        </form>
+
         <ul id="jar-list">
             {% for jar in jars %}
             <li class="content jar collapsed" id="jar-{{ jar.id }}">
                 <p>{{ jar.type }} Jar - {{ jar.content }}</p>
-                <button class="expand-button" data-jar-id="{{ jar.id }}">Show More</button>
-                <button class="delete-button" data-jar-id="{{ jar.id }}">Delete</button>
+                <div class="jar-controls">
+                    <span class="created-at">{{ jar.created_at }}</span>
+                    <button class="delete-button" data-jar-id="{{ jar.id }}">
+                        <img src="/static/image/deleteIcon.png" alt="Delete">
+                    </button>
+                    <button class="expand-button" data-jar-id="{{ jar.id }}">Show More</button>  
+                </div>    
             </li>
             {% endfor %}
         </ul>

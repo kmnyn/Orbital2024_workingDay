@@ -1,5 +1,7 @@
 <div class="sidebar">
-    <div class="logo">MonoJar</div>
+    <div class="logo">
+        <img src="/static/image/MonoJarLogo.jpg" alt="MonoJar Logo">
+    </div>
 
     <a href="#" class="main-tab" data-target="createjar-submenu">Create Jar</a>
     <div id="createjar-submenu" class="submenu">
@@ -28,6 +30,7 @@
     <a href="#" class="main-tab" data-target="settings-submenu">Settings</a>
     <div id="settings-submenu" class="submenu">
         <a href="/jarAppearance/{{ username }}">Jar Appearance</a>
+        <a href="/userGuide/{{ username }}">User Guide</a>
         <a href="/about/{{ username }}">About MonoJar</a>
         <a href="/logout" id="logout-button">Log Out</a>
     </div>
