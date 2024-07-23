@@ -371,10 +371,10 @@ def login():
 
         if user and check_password_hash(user[1], password):
             session['username'] = user[0]
-            return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])})
+            return jsonify({'message': 'Login successfully!', 'redirect': url_for('create_jar', username=user[0])}), 200
         else:
             logging.warning(f"Failed login attempt for username: {username}")
-            return jsonify({'message': 'Invalid credentials!'}), 400
+            return jsonify({'message': 'Invalid credentials!'}), 401
     except Exception as e:
         logging.error(f"Exception during login: {e}")
         return jsonify({'message': 'Login failed due to an internal error.'}), 500
