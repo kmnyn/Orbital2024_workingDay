@@ -15,11 +15,13 @@ document.addEventListener("DOMContentLoaded", function() {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            if (data.message === 'Login successfully!') {
-                window.location.href = data.redirect;
+        .then(response => response.json().then(data => ({status: response.status, body: data})))
+        .then(({status, body}) => {
+            console.log('Success:', body);
+            if (status === 200) {
+                window.location.href = body.redirect;
+            } else {
+                alert(body.message);
             }
         })
         .catch((error) => {
